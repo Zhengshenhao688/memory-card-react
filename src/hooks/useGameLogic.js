@@ -1,119 +1,49 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect } from "react";
+import { useGameState } from "./game/useGameState";
+import { useInitializeGame } from "./game/useInitializeGame";
+import { useCardClickLogic } from "./game/useCardClickLogic";
 
+/**
+ * useGameLogic：游戏核心控制器
+ * 负责整合：
+ *  - useGameState（所有状态）
+ *  - useInitializeGame（初始化 / 重置）
+ *  - useCardClickLogic（点击逻辑）
+ *
+ * 最终把 clean 的接口暴露给 App.jsx 使用。
+ */
 export const useGameLogic = (cardValues) => {
-  const [cards, setCards] = useState([]);
-  const [flippedCards, setFlippedCards] = useState([]);
-  const [matchedCards, setMatchedCards] = useState([]);
-  const [score, setScore] = useState(0);
-  const [moves, setMoves] = useState(0);
-  const [isLocked, setIsLocked] = useState(false);
+  // ——1. 获取所有游戏状态——
+  const state = useGameState();
 
-  const shuffleArray = (array) => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
+  // ——2. 初始化逻辑（传入 cardValues 和 state）——
+  const initializeGame = useInitializeGame(cardValues, state);
 
-  const initializeGame = useCallback(() => {
-    const shuffled = shuffleArray(cardValues);
-
-    const finalCards = shuffled.map((value, index) => ({
-      id: index,
-      value,
-      isFlipped: false,
-      isMatched: false,
-    }));
-
-    setCards(finalCards);
-    setIsLocked(false);
-    setMoves(0);
-    setScore(0);
-    setMatchedCards([]);
-    setFlippedCards([]);
-  }, [cardValues]);
+  // ——3. 点击逻辑（传入 state）——
+  const handleCardClick = useCardClickLogic(state);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     initializeGame();
-  }, [initializeGame]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleCardClick = (card) => {
-    if (
-      card.isFlipped ||
-      card.isMatched ||
-      isLocked ||
-      flippedCards.length === 2
-    ) {
-      return;
-    }
+  // ——5. 判断游戏是否结束——
+  const isGameComplete =
+    state.matchedCards.length === cardValues.length;
 
-    const newCards = cards.map((currentCard) => {
-      if (currentCard.id === card.id) {
-        return { ...currentCard, isFlipped: true };
-      } else {
-        return currentCard;
-      }
-    });
-
-    setCards(newCards);
-
-    const newFlippedCards = [...flippedCards, card.id];
-    setFlippedCards(newFlippedCards);
-
-
-    if (flippedCards.length === 1) {
-      setIsLocked(true);
-      const firstCard = cards[flippedCards[0]];
-
-      if (firstCard.value === card.value) {
-        setTimeout(() => {
-          setMatchedCards((prev) => [...prev, firstCard.id, card.id]);
-          setScore((prev) => prev + 1);
-          setCards((prev) =>
-            prev.map((currentCard) => {
-              if (currentCard.id === card.id || currentCard.id === firstCard.id) {
-                return { ...currentCard, isMatched: true };
-              } else {
-                return currentCard;
-              }
-            })
-          );
-
-          setFlippedCards([]);
-          setIsLocked(false);
-        }, 500);
-      } else {
-
-        setTimeout(() => {
-          const flippedBackCard = newCards.map((currentCard) => {
-            if (newFlippedCards.includes(currentCard.id) || currentCard.id === card.id) {
-              return { ...currentCard, isFlipped: false };
-            } else {
-              return currentCard;
-            }
-          });
-
-          setCards(flippedBackCard);
-          setIsLocked(false);
-          setFlippedCards([]);
-        }, 1000);
-      }
-
-      setMoves((prev) => prev + 1);
-    }
-  };
-
-  const isGameComplete = matchedCards.length === cardValues.length;
-
+  // ——6. 向外暴露的 API（供 App.jsx 使用）——
   return {
-    cards,
-    score,
-    moves,
+    /** 所有卡片的当前状态 */
+    cards: state.cards,
+    /** 当前得分 */
+    score: state.score,
+    /** 当前步数 */
+    moves: state.moves,
+    /** 是否通关 */
     isGameComplete,
+    /** 重置 / 开始游戏 */
     initializeGame,
+    /** 处理点击事件 */
     handleCardClick,
   };
 };
