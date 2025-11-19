@@ -40,7 +40,7 @@ function App() {
 
       <div className="cards-grid">
         {cards.map((card) => (
-          <Card key={card.id} card={card} onClick={handleCardClick} />
+          <Card key={card.id} card={card} onCardClick={handleCardClick} />
         ))}
       </div>
     </div>

@@ -50,11 +50,11 @@ export const useGameLogic = (cardValues) => {
       return;
     }
 
-    const newCards = cards.map((c) => {
-      if (c.id === card.id) {
-        return { ...c, isFlipped: true };
+    const newCards = cards.map((currentCard) => {
+      if (currentCard.id === card.id) {
+        return { ...currentCard, isFlipped: true };
       } else {
-        return c;
+        return currentCard;
       }
     });
 
@@ -73,11 +73,11 @@ export const useGameLogic = (cardValues) => {
           setMatchedCards((prev) => [...prev, firstCard.id, card.id]);
           setScore((prev) => prev + 1);
           setCards((prev) =>
-            prev.map((c) => {
-              if (c.id === card.id || c.id === firstCard.id) {
-                return { ...c, isMatched: true };
+            prev.map((currentCard) => {
+              if (currentCard.id === card.id || currentCard.id === firstCard.id) {
+                return { ...currentCard, isMatched: true };
               } else {
-                return c;
+                return currentCard;
               }
             })
           );
@@ -88,11 +88,11 @@ export const useGameLogic = (cardValues) => {
       } else {
 
         setTimeout(() => {
-          const flippedBackCard = newCards.map((c) => {
-            if (newFlippedCards.includes(c.id) || c.id === card.id) {
-              return { ...c, isFlipped: false };
+          const flippedBackCard = newCards.map((currentCard) => {
+            if (newFlippedCards.includes(currentCard.id) || currentCard.id === card.id) {
+              return { ...currentCard, isFlipped: false };
             } else {
-              return c;
+              return currentCard;
             }
           });
 
