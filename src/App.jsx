@@ -2,25 +2,7 @@ import { Card } from "./components/Card";
 import { GameHeader } from "./components/GameHeader";
 import { WinMessage } from "./components/WinMessage";
 import { useGameLogic } from "./hooks/useGameLogic";
-
-const cardValues = [
-  "🍎",
-  "🍌",
-  "🍇",
-  "🍊",
-  "🍓",
-  "🥝",
-  "🍑",
-  "🍒",
-  "🍎",
-  "🍌",
-  "🍇",
-  "🍊",
-  "🍓",
-  "🥝",
-  "🍑",
-  "🍒",
-];
+import cardValues from "./constants/cardValues";
 
 function App() {
   const {
