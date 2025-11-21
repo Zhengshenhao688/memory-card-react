@@ -1,4 +1,8 @@
-export const WinMessage = ({ moves }) => {
+interface WinMessageProps {
+  moves: number;
+}
+
+export const WinMessage = ({ moves }: WinMessageProps) => {
   return(
     <div className="win-message">
       <h2>Congratulations!</h2>

@@ -1,4 +1,10 @@
-export const GameHeader = ({ score, moves, onReset }) => {
+interface GameHeaderProps {
+  score: number;
+  moves: number;
+  onReset: () => void;
+}
+
+export const GameHeader = ({ score, moves, onReset }: GameHeaderProps) => {
   return (
     <div className="game-header">
       <h1>🎮 Memory Card Game</h1>

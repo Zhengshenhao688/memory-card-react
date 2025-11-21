@@ -10,7 +10,7 @@ import type { CardType } from "../../types/card";
  * @param {Object} state - 从 useGameState 传入的所有状态与 setter
  */
 export const useInitializeGame = (
-  cardValues: string[],
+  cardValues: readonly string[],
   state: {
     setCards: (cards: CardType[]) => void;
     setFlippedCards: (ids: number[]) => void;
@@ -37,7 +37,7 @@ export const useInitializeGame = (
    */
   const initializeGame = () => {
     // ① 洗牌
-    const shuffled = shuffleArray(cardValues);
+    const shuffled = shuffleArray([...cardValues]);
 
     // ② 生成最终卡片结构
     const finalCards = createCardList(shuffled);

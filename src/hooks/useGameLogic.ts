@@ -12,7 +12,7 @@ import { useCardClickLogic } from "./game/useCardClickLogic";
  *
  * 最终把 clean 的接口暴露给 App.jsx 使用。
  */
-export const useGameLogic = (cardValues: string[]) => {
+export const useGameLogic = (cardValues: readonly string[]) => {
   // ——1. 获取所有游戏状态——
   const state = useGameState();
 
