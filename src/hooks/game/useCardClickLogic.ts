@@ -9,7 +9,25 @@
  *  - 锁定点击防止快速触发
  */
 
-export const useCardClickLogic = (state) => {
+import type { Card } from "./useGameState";
+
+type GameState = {
+  cards: Card[];
+  setCards: React.Dispatch<React.SetStateAction<Card[]>>;
+
+  flippedCards: number[];
+  setFlippedCards: React.Dispatch<React.SetStateAction<number[]>>;
+
+  setMatchedCards: React.Dispatch<React.SetStateAction<number[]>>;
+
+  setScore: React.Dispatch<React.SetStateAction<number>>;
+  setMoves: React.Dispatch<React.SetStateAction<number>>;
+
+  isLocked: boolean;
+  setIsLocked: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export const useCardClickLogic = (state: GameState) => {
   const {
     cards, setCards,
     flippedCards, setFlippedCards,
@@ -20,7 +38,7 @@ export const useCardClickLogic = (state) => {
   } = state;
 
 
-  const handleCardClick = (card) => {
+  const handleCardClick = (card: Card) => {
     if (
       card.isFlipped ||          
       card.isMatched ||          
@@ -52,7 +70,7 @@ export const useCardClickLogic = (state) => {
     // ——第二张翻开：锁定界面点击——
     setIsLocked(true);
 
-    const firstCard = cards[newFlipped[0]];
+    const firstCard: Card = cards[newFlipped[0]!]!;
 
     // ————————————————————————————————————
     // 匹配成功
@@ -66,11 +84,11 @@ export const useCardClickLogic = (state) => {
 
         // 标记卡片状态为匹配成功
         setCards((prev) =>
-          prev.map((c) => {
-            if (c.id === firstCard.id || c.id === card.id) {
-              return { ...c, isMatched: true };
+          prev.map((cardItem) => {
+            if (cardItem.id === firstCard.id || cardItem.id === card.id) {
+              return { ...cardItem, isMatched: true };
             }
-            return c;
+            return cardItem;
           })
         );
 
@@ -83,11 +101,11 @@ export const useCardClickLogic = (state) => {
       // 匹配失败 → 翻回两张卡
       // ————————————————————————————————————
       setTimeout(() => {
-        const flippedBackCards = newCards.map((c) => {
-          if (newFlipped.includes(c.id)) {
-            return { ...c, isFlipped: false };
+        const flippedBackCards = newCards.map((cardItem) => {
+          if (newFlipped.includes(cardItem.id)) {
+            return { ...cardItem, isFlipped: false };
           }
-          return c;
+          return cardItem;
         });
 
         setCards(flippedBackCards);
