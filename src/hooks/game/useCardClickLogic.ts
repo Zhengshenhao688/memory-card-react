@@ -9,11 +9,11 @@
  *  - 锁定点击防止快速触发
  */
 
-import type { Card } from "./useGameState";
+import type { CardType } from "../../types/card";
 
 type GameState = {
-  cards: Card[];
-  setCards: React.Dispatch<React.SetStateAction<Card[]>>;
+  cards: CardType[];
+  setCards: React.Dispatch<React.SetStateAction<CardType[]>>;
 
   flippedCards: number[];
   setFlippedCards: React.Dispatch<React.SetStateAction<number[]>>;
@@ -38,7 +38,7 @@ export const useCardClickLogic = (state: GameState) => {
   } = state;
 
 
-  const handleCardClick = (card: Card) => {
+  const handleCardClick = (card: CardType) => {
     if (
       card.isFlipped ||          
       card.isMatched ||          
@@ -70,7 +70,7 @@ export const useCardClickLogic = (state: GameState) => {
     // ——第二张翻开：锁定界面点击——
     setIsLocked(true);
 
-    const firstCard: Card = cards[newFlipped[0]!]!;
+    const firstCard: CardType = cards[newFlipped[0]!]!;
 
     // ————————————————————————————————————
     // 匹配成功

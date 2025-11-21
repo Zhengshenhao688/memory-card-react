@@ -1,6 +1,6 @@
 import { shuffleArray } from "../../utils/shuffle";
 import { createCardList } from "../../utils/createCardList";
-import type { Card } from "./useGameState";
+import type { CardType } from "../../types/card";
 
 /**
  * 负责初始化 / 重置整局游戏的逻辑。
@@ -12,7 +12,7 @@ import type { Card } from "./useGameState";
 export const useInitializeGame = (
   cardValues: string[],
   state: {
-    setCards: (cards: Card[]) => void;
+    setCards: (cards: CardType[]) => void;
     setFlippedCards: (ids: number[]) => void;
     setMatchedCards: (ids: number[]) => void;
     setMoves: (moves: number) => void;

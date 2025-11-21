@@ -1,11 +1,5 @@
 import { useState } from "react";
-
-export interface CardType {
-  id: number;
-  value: string;
-  isFlipped: boolean;
-  isMatched: boolean;
-}
+import type { CardType } from "../../types/card";
 
 export const useGameState = () => {
   const [cards, setCards] = useState<CardType[]>([]);

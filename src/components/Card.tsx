@@ -1,4 +1,4 @@
-import type { CardType } from "../hooks/game/useGameState";
+import type { CardType } from "../types/card";
 
 interface CardProps {
   card: CardType;
