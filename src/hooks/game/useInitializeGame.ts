@@ -1,5 +1,6 @@
 import { shuffleArray } from "../../utils/shuffle";
 import { createCardList } from "../../utils/createCardList";
+import type { Card } from "./useGameState";
 
 /**
  * 负责初始化 / 重置整局游戏的逻辑。
@@ -8,7 +9,17 @@ import { createCardList } from "../../utils/createCardList";
  * @param {Array} cardValues - 卡片的 value 列表（如 [1,1,2,2,3,3]）
  * @param {Object} state - 从 useGameState 传入的所有状态与 setter
  */
-export const useInitializeGame = (cardValues, state) => {
+export const useInitializeGame = (
+  cardValues: string[],
+  state: {
+    setCards: (cards: Card[]) => void;
+    setFlippedCards: (ids: number[]) => void;
+    setMatchedCards: (ids: number[]) => void;
+    setMoves: (moves: number) => void;
+    setScore: (score: number) => void;
+    setIsLocked: (v: boolean) => void;
+  }
+) => {
   const {
     setCards,
     setFlippedCards,

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-interface Card {
+export interface Card {
   id: number;
   value: string;
   isFlipped: boolean;
