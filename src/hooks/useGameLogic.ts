@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useGameState } from "./game/useGameState";
+import { useGameState } from "../store/gameState";
 import { useInitializeGame } from "./game/useInitializeGame";
 import { useCardClickLogic } from "./game/useCardClickLogic";
 
@@ -14,13 +14,16 @@ import { useCardClickLogic } from "./game/useCardClickLogic";
  */
 export const useGameLogic = (cardValues: readonly string[]) => {
   // ——1. 获取所有游戏状态——
-  const state = useGameState();
+  const cards = useGameState(state => state.cards);
+  const score = useGameState(state => state.score);
+  const moves = useGameState(state => state.moves);
+  const matchedCards = useGameState(state => state.matchedCards);
 
-  // ——2. 初始化逻辑（传入 cardValues 和 state）——
-  const initializeGame = useInitializeGame(cardValues, state);
+  // ——2. 初始化逻辑（传入 cardValues）——
+  const initializeGame = useInitializeGame(cardValues);
 
-  // ——3. 点击逻辑（传入 state）——
-  const handleCardClick = useCardClickLogic(state);
+  // ——3. 点击逻辑——
+  const handleCardClick = useCardClickLogic();
 
   useEffect(() => {
     initializeGame();
@@ -29,16 +32,16 @@ export const useGameLogic = (cardValues: readonly string[]) => {
 
   // ——5. 判断游戏是否结束——
   const isGameComplete =
-    state.matchedCards.length === cardValues.length;
+    matchedCards.length === cardValues.length;
 
   // ——6. 向外暴露的 API（供 App.jsx 使用）——
   return {
     /** 所有卡片的当前状态 */
-    cards: state.cards,
+    cards,
     /** 当前得分 */
-    score: state.score,
+    score,
     /** 当前步数 */
-    moves: state.moves,
+    moves,
     /** 是否通关 */
     isGameComplete,
     /** 重置 / 开始游戏 */

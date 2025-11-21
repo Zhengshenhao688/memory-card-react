@@ -248,3 +248,15 @@ body {
     font-size: 2.5rem;
   }
 }
+
+/* Ensure matched cards stay visibly flipped */
+.card.matched .card-front {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.9);
+}
+
+.card.matched .card-back {
+  opacity: 1;
+  transform: rotateY(0deg);
+}

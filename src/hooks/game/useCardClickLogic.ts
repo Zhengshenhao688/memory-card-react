@@ -1,121 +1,97 @@
-/**
- * 处理用户点击卡片的逻辑。
- * 负责：
- *  - 翻开卡片
- *  - 判定第一张 / 第二张
- *  - 匹配成功逻辑
- *  - 匹配失败翻回逻辑
- *  - 分数、步数更新
- *  - 锁定点击防止快速触发
- */
-
 import type { CardType } from "../../types/card";
+import { useGameState } from "../../store/gameState";
 
-type GameState = {
-  cards: CardType[];
-  setCards: React.Dispatch<React.SetStateAction<CardType[]>>;
-
-  flippedCards: number[];
-  setFlippedCards: React.Dispatch<React.SetStateAction<number[]>>;
-
-  setMatchedCards: React.Dispatch<React.SetStateAction<number[]>>;
-
-  setScore: React.Dispatch<React.SetStateAction<number>>;
-  setMoves: React.Dispatch<React.SetStateAction<number>>;
-
-  isLocked: boolean;
-  setIsLocked: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-export const useCardClickLogic = (state: GameState) => {
+export const useCardClickLogic = () => {
   const {
-    cards, setCards,
-    flippedCards, setFlippedCards,
-    /*matchedCards,*/ setMatchedCards,
-    /*score,*/ setScore,
-    /*moves,*/ setMoves,
-    isLocked, setIsLocked,
-  } = state;
-
+    cards,
+    setCards,
+    flippedCards,
+    setFlippedCards,
+    matchedCards,
+    setMatchedCards,
+    score,
+    setScore,
+    moves,
+    setMoves,
+    isLocked,
+    setIsLocked,
+  } = useGameState();
 
   const handleCardClick = (card: CardType) => {
-    if (
-      card.isFlipped ||          
-      card.isMatched ||          
-      isLocked ||                
-      flippedCards.length === 2  
-    ) {
-      return;
-    }
+    // ① 如果牌已经匹配 或 当前被锁住（等待翻回），禁止点
+    if (card.isMatched || card.isFlipped || isLocked) return;
 
-    // ——翻开当前卡片——
-    const newCards = cards.map((currentCard) => {
-      if (currentCard.id === card.id) {
-        return { ...currentCard, isFlipped: true };
-      }
-      return currentCard;
-    });
+    // ② 翻开当前牌
+    setFlippedCards([...flippedCards, card.id]);
 
-    setCards(newCards);
+    // 同步更新卡片为翻开状态
+    setCards(
+      cards.map((c) =>
+        c.id === card.id ? { ...c, isFlipped: true } : c
+      )
+    );
 
-    // ——加入 flippedCards 列表——
-    const newFlipped = [...flippedCards, card.id];
-    setFlippedCards(newFlipped);
+    // 如果这是第一张牌 → 不需要检查匹配
+    if (flippedCards.length === 0) return;
 
-    // ——如果这是此次翻开的第一张——
-    if (newFlipped.length === 1) {
-      return;
-    }
-
-    // ——第二张翻开：锁定界面点击——
+    // ③ 第二张牌 → 锁定，避免用户快速乱点
     setIsLocked(true);
 
-    const firstCard: CardType = cards[newFlipped[0]!]!;
+    const firstCardId = flippedCards[0];
+    const firstCard = cards.find((c) => c.id === firstCardId)!;
+    const secondCard = card;
 
-    // ————————————————————————————————————
-    // 匹配成功
-    // ————————————————————————————————————
-    if (firstCard.value === card.value) {
+    // ④ 如果匹配成功
+    if (firstCard.value === secondCard.value) {
       setTimeout(() => {
-        // 添加到 matchedCards
-        setMatchedCards((prev) => [...prev, firstCard.id, card.id]);
+        // 更新匹配的列表
+        setMatchedCards([...matchedCards, firstCard.id, secondCard.id]);
 
-        setScore((prev) => prev + 1);
-
-        // 标记卡片状态为匹配成功
-        setCards((prev) =>
-          prev.map((cardItem) => {
-            if (cardItem.id === firstCard.id || cardItem.id === card.id) {
-              return { ...cardItem, isMatched: true };
-            }
-            return cardItem;
-          })
+        // UI 上标记 matched
+        setCards(
+          cards.map((c) =>
+            c.id === firstCard.id || c.id === secondCard.id
+              ? { ...c, isMatched: true }
+              : c
+          )
         );
 
-        setFlippedCards([]);
-        setIsLocked(false);
-      }, 500);
+        // 分数 +1
+        setScore(score + 1);
 
-    } else {
-      // ————————————————————————————————————
-      // 匹配失败 → 翻回两张卡
-      // ————————————————————————————————————
-      setTimeout(() => {
-        const flippedBackCards = newCards.map((cardItem) => {
-          if (newFlipped.includes(cardItem.id)) {
-            return { ...cardItem, isFlipped: false };
-          }
-          return cardItem;
-        });
-
-        setCards(flippedBackCards);
+        // 重置 flippedCards
         setFlippedCards([]);
+
+        // 步数 +1
+        setMoves(moves + 1);
+
+        // 解锁
         setIsLocked(false);
-      }, 1000);
+      }, 300);
+
+      return;
     }
 
-    // ——增加步数（每两张算一步）——
-    setMoves((prev) => prev + 1);
+    // ⑤ 如果配对失败 → 翻回两张牌
+    setTimeout(() => {
+      // 翻回 UI
+      setCards(
+        cards.map((c) =>
+          c.id === firstCard.id || c.id === secondCard.id
+            ? { ...c, isFlipped: false }
+            : c
+        )
+      );
+
+      // 重置 flippedCards
+      setFlippedCards([]);
+
+      // 步数 +1
+      setMoves(moves + 1);
+
+      // 解锁
+      setIsLocked(false);
+    }, 800);
   };
 
   return handleCardClick;
